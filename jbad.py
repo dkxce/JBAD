@@ -1,42 +1,47 @@
 #
-# JBad: Bad JSON Parser (Pure Python) v1, revision 3, 02.08.2023
+# JBad: Bad JSON Parser (Pure Python) v1, revision 2, 21.07.2023
+#
+# PS: for Yaml Parse need PyYAML (`import yaml` in `def yamls(txt, *args, **kwargs)`)
+# PS: Ð”Ð»Ñ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³Ð° Yaml Ð½ÑƒÐ¶ÐµÐ½ PyYAML (`import yaml` in `def yamls(txt, *args, **kwargs)`)
 #
 # Usage:
 #   jbad.loads("...")
 #
 
-import re # FOR SOME RETURNS # Äëÿ íåêòîðûõ âîçâðàòîâ `{} {} {}`
+import re # FOR SOME RETURNS # Ð”Ð»Ñ Ð½ÐµÐºÑ‚Ð¾Ñ€Ñ‹Ñ… Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‚Ð¾Ð² `{} {} {}`
 
 
-# PRESETS # ÏÐÅÑÅÒÛ #
-ALLOW_SORRY_ERRORS             = True   # Ñòðîêà Sorry, êàê îøèáêà          # Sorry,asofnow,AppleWatchSeries8hasnotbeenreleasedyet.
-ALLOW_PRELIMINARY_PARSING      = True   # Âêëþ÷àòü ïðåäâàðèòåëüíûé ïàðñèíã  # PRELIMINARY PARSING (óìåíüøàåò ÷èñëî ïðîõîäîâ, íî óâåëè÷èâàåò ÷èñëî îøèáîê)
-ALLOW_KEYS_WITHOUT_QUOTAS      = True   # Èìåíà ïàðàìåòðîâ áåç êàâû÷åê      # {  key :  "Value" }
-ALLOW_KEYS_AS_DIGITS           = True   # Èìåíà ïàðàìåòðîâ êàê ÷èñëî        # {  111 :  "Value" }
-ALLOW_STRINGS_IN_SINGLE_QUOTAS = True   # Ñòðîêè â îäèíàðíûõ êàâû÷êàõ       # { 'key':  'Value' }
-ALLOW_FORGET_COMMA_IN_DICT     = True   # Ïðîïóùåíû çàïÿòûå â ñëîâàðÿõ      # { 'key':  'Value'  'Key2': 'Value2'}
-ALLOW_FORGET_COMMA_IN_ARRAY    = True   # Ïðîïóùåíû çàïÿòûå â ìàññèâàõ      # [ 'x' 'y' 'z' ]
-ALLOW_ENDING_COMMA_IN_DICT     = True   # Îòêðûòàÿ çàïÿòàÿ â êîíöå ñëîâàðÿ  # { 'key':  'Value', 'Key2': 'Value2', }
-ALLOW_ENDING_COMMA_IN_ARRAY    = True   # Îòêðûòàÿ çàïÿòàÿ â êîíöå ìàññèâà  # [ 'x', 'y', 'z', ]
-ALLOW_EMPTY_RECORDS_IN_DICT    = True   # Âîçìîæíû ïðîïóñêè â ñëîâàðå       # { 'key':  'Value', ,  'Key2': 'Value2' } { 'key':  'Value', 'Key2' ,  'Key3': 'Value3' } -> None
-ALLOW_EMPTY_RECORDS_IN_ARRAY   = True   # Ïóñòûå ýëåìåíòû â ìàññèâå         # [ 0, 1, , 2]  ->  None
-ALLOW_FORGOT_START_DICT        = True   # Íåò îòêðûâàþùåé ñêîáêè ñëîâàðÿ    # 'key':  'Value',  'Key2': 'Value2' }
-ALLOW_FORGOT_END_DICT          = True   # Íåò çàêðûâàþùåé ñêîáêè ñëîâàðÿ    # { 'key':  'Value', ,  'Key2': 'Value2'
-ALLOW_FORGOT_START_ARRAY       = True   # Íåò îòêðûâàþùåé ñêîáêè ìàññèâà    # 0, 1 ]
-ALLOW_FORGOT_END_ARRAY         = True   # Íåò çàêðûâàþùåé ñêîáêè ìàññèâà    # [ 0, 1
-ALLOW_STRINGS_STARTS_WITH_DOG  = True   # Äîïóñêàþòñÿ ñòðîêè ñ ñîáàêè       # { "key": @"Value" }
-ALLOW_DICTS_WITHOUT_CAGE       = True   # Âîçìîæåí ñëîâàðü áåç ñêîáîê       # 'key':  'Value', 'Key2': 'Value2'
-ALLOW_CALC_BLOCKS_IF_THROW     = True   # Ñ÷èòàòü ÷èñëî ñêîáîê ñëîâàðÿ      # ... }}}
-ALLOW_THREE_DOTS_AS_ANY        = True   # Ìíîãîòî÷üå êàê ëþáîå çíà÷åíèå     # , ... ,
-ALLOW_FLEXIBLE_NUMBERS         = True   # Íåñòàíäàðòíàÿ çàïèñü ÷èñåë        # .5 | +10
-ALLOW_SIMPLE_TYPES_RETURN      = False  # Âîçâðàùàòü ïðîñòûå òèïû êàê dict  # string | int | float ...
-ALTERNATIVE_DECIMAL_DELIMITERS = [',']  # Ìàññèâ äîï ðàçäåëèòåëåé äðîáè (,) # { "Price": 2,15 } -- ARRAY
-DEFAULT_WHITE_SPACE_CHARACTERS = [' ', '\t', '\r', '\n', u'\u2800']         # Ïðîáåëû # WhiteSpace 
+# PRESETS # ÐŸÐ Ð•Ð¡Ð•Ð¢Ð« #
+ALLOW_SORRY_ERRORS             = True   # Ð¡Ñ‚Ñ€Ð¾ÐºÐ° Sorry, ÐºÐ°Ðº Ð¾ÑˆÐ¸Ð±ÐºÐ°          # Sorry,asofnow,AppleWatchSeries8hasnotbeenreleasedyet.
+ALLOW_PRELIMINARY_PARSING      = True   # Ð’ÐºÐ»ÑŽÑ‡Ð°Ñ‚ÑŒ Ð¿Ñ€ÐµÐ´Ð²Ð°Ñ€Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ñ‹Ð¹ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³  # PRELIMINARY PARSING (ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ°ÐµÑ‚ Ñ‡Ð¸ÑÐ»Ð¾ Ð¿Ñ€Ð¾Ñ…Ð¾Ð´Ð¾Ð², Ð½Ð¾ ÑƒÐ²ÐµÐ»Ð¸Ñ‡Ð¸Ð²Ð°ÐµÑ‚ Ñ‡Ð¸ÑÐ»Ð¾ Ð¾ÑˆÐ¸Ð±Ð¾Ðº)
+ALLOW_KEYS_WITHOUT_QUOTAS      = True   # Ð˜Ð¼ÐµÐ½Ð° Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² Ð±ÐµÐ· ÐºÐ°Ð²Ñ‹Ñ‡ÐµÐº      # {  key :  "Value" }
+ALLOW_KEYS_AS_DIGITS           = True   # Ð˜Ð¼ÐµÐ½Ð° Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² ÐºÐ°Ðº Ñ‡Ð¸ÑÐ»Ð¾        # {  111 :  "Value" }
+ALLOW_STRINGS_IN_SINGLE_QUOTAS = True   # Ð¡Ñ‚Ñ€Ð¾ÐºÐ¸ Ð² Ð¾Ð´Ð¸Ð½Ð°Ñ€Ð½Ñ‹Ñ… ÐºÐ°Ð²Ñ‹Ñ‡ÐºÐ°Ñ…       # { 'key':  'Value' }
+ALLOW_FORGET_COMMA_IN_DICT     = True   # ÐŸÑ€Ð¾Ð¿ÑƒÑ‰ÐµÐ½Ñ‹ Ð·Ð°Ð¿ÑÑ‚Ñ‹Ðµ Ð² ÑÐ»Ð¾Ð²Ð°Ñ€ÑÑ…      # { 'key':  'Value'  'Key2': 'Value2'}
+ALLOW_FORGET_COMMA_IN_ARRAY    = True   # ÐŸÑ€Ð¾Ð¿ÑƒÑ‰ÐµÐ½Ñ‹ Ð·Ð°Ð¿ÑÑ‚Ñ‹Ðµ Ð² Ð¼Ð°ÑÑÐ¸Ð²Ð°Ñ…      # [ 'x' 'y' 'z' ]
+ALLOW_ENDING_COMMA_IN_DICT     = True   # ÐžÑ‚ÐºÑ€Ñ‹Ñ‚Ð°Ñ Ð·Ð°Ð¿ÑÑ‚Ð°Ñ Ð² ÐºÐ¾Ð½Ñ†Ðµ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ  # { 'key':  'Value', 'Key2': 'Value2', }
+ALLOW_ENDING_COMMA_IN_ARRAY    = True   # ÐžÑ‚ÐºÑ€Ñ‹Ñ‚Ð°Ñ Ð·Ð°Ð¿ÑÑ‚Ð°Ñ Ð² ÐºÐ¾Ð½Ñ†Ðµ Ð¼Ð°ÑÑÐ¸Ð²Ð°  # [ 'x', 'y', 'z', ]
+ALLOW_EMPTY_RECORDS_IN_DICT    = True   # Ð’Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ñ‹ Ð¿Ñ€Ð¾Ð¿ÑƒÑÐºÐ¸ Ð² ÑÐ»Ð¾Ð²Ð°Ñ€Ðµ       # { 'key':  'Value', ,  'Key2': 'Value2' } { 'key':  'Value', 'Key2' ,  'Key3': 'Value3' } -> None
+ALLOW_EMPTY_RECORDS_IN_ARRAY   = True   # ÐŸÑƒÑÑ‚Ñ‹Ðµ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñ‹ Ð² Ð¼Ð°ÑÑÐ¸Ð²Ðµ         # [ 0, 1, , 2]  ->  None
+ALLOW_FORGOT_START_DICT        = True   # ÐÐµÑ‚ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ    # 'key':  'Value',  'Key2': 'Value2' }
+ALLOW_FORGOT_END_DICT          = True   # ÐÐµÑ‚ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ    # { 'key':  'Value', ,  'Key2': 'Value2'
+ALLOW_FORGOT_START_ARRAY       = True   # ÐÐµÑ‚ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ Ð¼Ð°ÑÑÐ¸Ð²Ð°    # 0, 1 ]
+ALLOW_FORGOT_END_ARRAY         = True   # ÐÐµÑ‚ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ Ð¼Ð°ÑÑÐ¸Ð²Ð°    # [ 0, 1
+ALLOW_STRINGS_STARTS_WITH_DOG  = True   # Ð”Ð¾Ð¿ÑƒÑÐºÐ°ÑŽÑ‚ÑÑ ÑÑ‚Ñ€Ð¾ÐºÐ¸ Ñ ÑÐ¾Ð±Ð°ÐºÐ¸       # { "key": @"Value" }
+ALLOW_DICTS_WITHOUT_CAGE       = True   # Ð’Ð¾Ð·Ð¼Ð¾Ð¶ÐµÐ½ ÑÐ»Ð¾Ð²Ð°Ñ€ÑŒ Ð±ÐµÐ· ÑÐºÐ¾Ð±Ð¾Ðº       # 'key':  'Value', 'Key2': 'Value2'
+ALLOW_CALC_BLOCKS_IF_THROW     = True   # Ð¡Ñ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ñ‡Ð¸ÑÐ»Ð¾ ÑÐºÐ¾Ð±Ð¾Ðº ÑÐ»Ð¾Ð²Ð°Ñ€Ñ      # ... }}}
+ALLOW_YAML_ANALYSE             = True   # ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÑ‚ÑŒ Ð½Ð° Ð¿Ñ€ÐµÐ´Ð¼ÐµÑ‚ Yaml         # YAML (Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ Ð½Ð°Ð¼Ð½Ð¾Ð³Ð¾ Ð´Ð¾Ð»ÑŒÑˆÐµ)
+ALLOW_YAML_PLUS_JSON_ANALYSE   = True   # ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÑ‚ÑŒ Ð½Ð° Ð¿Ñ€ÐµÐ´Ð¼ÐµÑ‚ Yaml+JSON    # YAML + JSON (Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ÑÑ Ð½Ð°Ð¼Ð½Ð¾Ð³Ð¾-Ð½Ð°Ð¼Ð½Ð¾Ð³Ð¾ Ð´Ð¾Ð»ÑŒÑˆÐµ)
+ALLOW_THREE_DOTS_AS_ANY        = True   # ÐœÐ½Ð¾Ð³Ð¾Ñ‚Ð¾Ñ‡ÑŒÐµ ÐºÐ°Ðº Ð»ÑŽÐ±Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ     # , ... ,
+ALLOW_FLEXIBLE_NUMBERS         = True   # ÐÐµÑÑ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð°Ñ Ð·Ð°Ð¿Ð¸ÑÑŒ Ñ‡Ð¸ÑÐµÐ»        # .5 | +10
+ALLOW_SIMPLE_TYPES_RETURN      = False  # Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°Ñ‚ÑŒ Ð¿Ñ€Ð¾ÑÑ‚Ñ‹Ðµ Ñ‚Ð¸Ð¿Ñ‹ ÐºÐ°Ðº dict  # string | int | float ...
+ALTERNATIVE_DECIMAL_DELIMITERS = [',']  # ÐœÐ°ÑÑÐ¸Ð² Ð´Ð¾Ð¿ Ñ€Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»ÐµÐ¹ Ð´Ñ€Ð¾Ð±Ð¸ (,) # { "Price": 2,15 } -- ARRAY
+DEFAULT_WHITE_SPACE_CHARACTERS = [' ', '\t', '\r', '\n', u'\u2800']         # ÐŸÑ€Ð¾Ð±ÐµÐ»Ñ‹ # WhiteSpace 
 
 
 # COUNTERS #
-COUNTER_JSON = 0 # Ñ÷èòàåì ÷èñëî ïðîõîäîâ
-COUNTER_YAML = 0 # Ñ÷èòàåì ÷èñëî ïðîõîäîâ
+COUNTER_JSON = 0 # Ð¡Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ Ñ‡Ð¸ÑÐ»Ð¾ Ð¿Ñ€Ð¾Ñ…Ð¾Ð´Ð¾Ð²
+COUNTER_YAML = 0 # Ð¡Ñ‡Ð¸Ñ‚Ð°ÐµÐ¼ Ñ‡Ð¸ÑÐ»Ð¾ Ð¿Ñ€Ð¾Ñ…Ð¾Ð´Ð¾Ð²
 
 
 def loads(txt: str, pos: int = 0, *args, **kwargs):
@@ -48,14 +53,14 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
     COUNTER_JSON += 1
 
     # COLLECT ARGUMENTS #
-    DEPTH            = 0     # Ãëóáèíà ðåêóðñèè
-    SKIP_ARRAY_CAGES = False # Ïðîïóñêàòü ïðîâåðêó ìàññèâà áåç ñêîáîê
-    SKIP_DICT_CAGES  = False # Ïðîïóñêàòü ïðîâåðêó ñëîâàðÿ áåç ñêîáîê
-    SKIP_LAST_DI_STR = False # Ïðîïóñêàòü ïðîâåðêó îòêðûâàþùåé ñêîáêè ñëîâàðÿ
-    SKIP_LAST_DI_END = False # Ïðîïóñêàòü ïðîâåðêó çàêðûâàþùåé ñêîáêè ñëîâàðÿ
-    SKIP_LAST_AR_STR = False # Ïðîïóñêàòü ïðîâåðêó îòêðûâàþùåé ñêîáêè ìàññèâà
-    SKIP_LAST_AR_END = False # Ïðîïóñêàòü ïðîâåðêó çàêðûâàþùåé ñêîáêè ìàññèâà   
-    SKIP_YAML_PARSE  = False # Ïðîïóñêàòü ïðîâåðêó Yaml
+    DEPTH            = 0     # Ð“Ð»ÑƒÐ±Ð¸Ð½Ð° Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð¸
+    SKIP_ARRAY_CAGES = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð¼Ð°ÑÑÐ¸Ð²Ð° Ð±ÐµÐ· ÑÐºÐ¾Ð±Ð¾Ðº
+    SKIP_DICT_CAGES  = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ Ð±ÐµÐ· ÑÐºÐ¾Ð±Ð¾Ðº
+    SKIP_LAST_DI_STR = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ
+    SKIP_LAST_DI_END = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ ÑÐ»Ð¾Ð²Ð°Ñ€Ñ
+    SKIP_LAST_AR_STR = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð¾Ñ‚ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ Ð¼Ð°ÑÑÐ¸Ð²Ð°
+    SKIP_LAST_AR_END = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ ÑÐºÐ¾Ð±ÐºÐ¸ Ð¼Ð°ÑÑÐ¸Ð²Ð°   
+    SKIP_YAML_PARSE  = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Yaml
     for k,v in kwargs.items():
         if k == "DEPTH"           : DEPTH             = v
         if k == "SKIP_ARRAY_CAGES": SKIP_ARRAY_CAGES  = v
@@ -66,20 +71,20 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
         if k == "SKIP_LAST_AR_END": SKIP_LAST_DI_END  = v        
         if k == "SKIP_YAML_PARSE" : SKIP_YAML_PARSE   = v        
 
-    # EMPTY RESULT # ÏÓÑÒÀß ÑÒÐÎÊÀ #
+    # EMPTY RESULT # ÐŸÐ£Ð¡Ð¢ÐÐ¯ Ð¡Ð¢Ð ÐžÐšÐ #
     if len(txt) == 0: return None    
     if pos > len(txt): return None    
 
-    # ALL SPACES # ÏÐÎÁÅËÛ #
+    # ALL SPACES # ÐŸÐ ÐžÐ‘Ð•Ð›Ð« #
     pos = trim_leading(txt, pos)
     if pos >= len(txt): return None    
 
-    # INIT TEXT # ÏÅÐÂÛÅ ÑÈÌÂÎËÛ #
+    # INIT TEXT # ÐŸÐ•Ð Ð’Ð«Ð• Ð¡Ð˜ÐœÐ’ÐžÐ›Ð« #
     start = pos
     first = txt[start:start+1]
 
     # PRELIMINARY PARSING # RECURSIVE # CAN BE REMOVED IF LOW PERFOMANCE #  
-    # ÏÐÅÄÂÀÐÈÒÅËÜÍÛÉ ÏÀÐÑÈÍÃ # ÏÐÎÏÓÑÊÀÅÒÑß ÏÐÈ ÐÅÊÓÐÑÈÈ # ÌÎÆÍÎ ÎÒÊËÞ×ÈÒÜ ÄËß ÑÊÎÐÎÑÒÈ #
+    # ÐŸÐ Ð•Ð”Ð’ÐÐ Ð˜Ð¢Ð•Ð›Ð¬ÐÐ«Ð™ ÐŸÐÐ Ð¡Ð˜ÐÐ“ # ÐŸÐ ÐžÐŸÐ£Ð¡ÐšÐÐ•Ð¢Ð¡Ð¯ ÐŸÐ Ð˜ Ð Ð•ÐšÐ£Ð Ð¡Ð˜Ð˜ # ÐœÐžÐ–ÐÐž ÐžÐ¢ÐšÐ›Ð®Ð§Ð˜Ð¢Ð¬ Ð”Ð›Ð¯ Ð¡ÐšÐžÐ ÐžÐ¡Ð¢Ð˜ #
 
     if ALLOW_SORRY_ERRORS and (txt[start:].startswith("Sorry,") or txt[start:].startswith("'Sorry,") or txt[start:].startswith('"Sorry,')):
         JsonBodyException.throw(txt.strip())    
@@ -95,17 +100,21 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
             try: return loads("[" + txt + "]", SKIP_DICT_CAGE = True, DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
             except: pass    
     
-    # WITH POSTANALYSE # Ñ ÏÎÑÒÎÁÐÀÁÎÒÊÎÉ ÈÑÊËÞ×ÅÍÈÉ #
+    # WITH POSTANALYSE # Ð¡ ÐŸÐžÐ¡Ð¢ÐžÐ‘Ð ÐÐ‘ÐžÐ¢ÐšÐžÐ™ Ð˜Ð¡ÐšÐ›Ð®Ð§Ð•ÐÐ˜Ð™ #
     try:
 
         # PRELIMINARY PARSING - QUOTED TEXT # 
-        # ÏÐÅÄÂÀÐÈÒÅËÜÍÛÉ ÏÀÐÑÈÍÃ - ÒÅÊÑÒ Â ÊÀÂÛ×ÊÀÕ #
+        # ÐŸÐ Ð•Ð”Ð’ÐÐ Ð˜Ð¢Ð•Ð›Ð¬ÐÐ«Ð™ ÐŸÐÐ Ð¡Ð˜ÐÐ“ - Ð¢Ð•ÐšÐ¡Ð¢ Ð’ ÐšÐÐ’Ð«Ð§ÐšÐÐ¥ #
         if ALLOW_PRELIMINARY_PARSING:
             if ALLOW_DICTS_WITHOUT_CAGE and not SKIP_DICT_CAGES and (first == '"' or first == "'"):
                 p = trim_leading(txt, parse_string(txt, start, first)[1])
                 if txt[p:p+1] == ':': return loads("{" + txt + "}", SKIP_DICT_CAGES = True, DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
 
-        # MAIN JSON PARSING # ÎÑÍÎÂÍÎÉ ÏÀÐÑÈÍÃ JSON #
+        if ALLOW_YAML_ANALYSE and not SKIP_YAML_PARSE and txt[start:].startswith("-"): 
+            SKIP_YAML_PARSE = True
+            return yamls(txt, DEPTH = DEPTH) # YAML
+
+        # MAIN JSON PARSING # ÐžÐ¡ÐÐžÐ’ÐÐžÐ™ ÐŸÐÐ Ð¡Ð˜ÐÐ“ JSON #
         element, pos = parse_json(txt, pos)
         validate_json(txt, pos, condition = (pos == len(txt)))
         diff = isinstance(element, dict) or isinstance(element, list)
@@ -114,16 +123,16 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
             else: JsonValidationException.throw("Text isn't a JSON:", txt, 0)
         return element
 
-    # POSTANALYSE # ÏÎÑÒÎÁÐÀÁÎÒÊÀ ÈÑÊËÞ×ÅÍÈÉ #
+    # POSTANALYSE # ÐŸÐžÐ¡Ð¢ÐžÐ‘Ð ÐÐ‘ÐžÐ¢ÐšÐ Ð˜Ð¡ÐšÐ›Ð®Ð§Ð•ÐÐ˜Ð™ #
     except Exception as e:
 
-        # COMMA ERROR IN ARRAY OB OBJECTS # ÂÎÇÌÎÆÍÎ ÎØÈÁÊÀ Â ÌÀÑÑÈÂÅ ÎÁÚÅÊÒÎÂ - ÍÅÒ ÇÀÏßÒÎÉ #
+        # COMMA ERROR IN ARRAY OB OBJECTS # Ð’ÐžÐ—ÐœÐžÐ–ÐÐž ÐžÐ¨Ð˜Ð‘ÐšÐ Ð’ ÐœÐÐ¡Ð¡Ð˜Ð’Ð• ÐžÐ‘ÐªÐ•ÐšÐ¢ÐžÐ’ - ÐÐ•Ð¢ Ð—ÐÐŸÐ¯Ð¢ÐžÐ™ #
         if isinstance(e, JsonValidationException):
             if txt[start:].startswith("{") and e.Symbol == ',':
                 try: return loads("[" + txt + "]", DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
                 except Exception as ie: set_inner_exceptions(e, ie)
 
-        # FORGOR { } # ÇÀÁÛËÈ ÎÄÍÓ ÈÇ ÑÊÎÁÎÊ #
+        # FORGOR { } # Ð—ÐÐ‘Ð«Ð›Ð˜ ÐžÐ”ÐÐ£ Ð˜Ð— Ð¡ÐšÐžÐ‘ÐžÐš #
         if isinstance(e, JsonValidationException) or isinstance(e, IndexError):
             if ALLOW_FORGOT_START_DICT and not SKIP_LAST_DI_STR and txt.strip().endswith("}") and not txt[start:].startswith("{"):
                 try: return loads("{" + txt, SKIP_LAST_BL_STR = True, DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
@@ -132,7 +141,7 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
                 try: return loads(txt + "}", SKIP_LAST_BL_END = True, DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
                 except Exception as ie: set_inner_exceptions(e, ie)
 
-        # CALCULATE {} # ÏÎÄÑ×ÅÒ ÑÊÎÁÎÊ, ÂÎÇÌÎÆÍÎ ÇÀÁÛËÈ ÇÀÊÐÛÒÜ/ÎÒÊÐÛÒÜ #
+        # CALCULATE {} # ÐŸÐžÐ”Ð¡Ð§Ð•Ð¢ Ð¡ÐšÐžÐ‘ÐžÐš, Ð’ÐžÐ—ÐœÐžÐ–ÐÐž Ð—ÐÐ‘Ð«Ð›Ð˜ Ð—ÐÐšÐ Ð«Ð¢Ð¬/ÐžÐ¢ÐšÐ Ð«Ð¢Ð¬ #
         if ALLOW_CALC_BLOCKS_IF_THROW and DEPTH == 0:
            bs = txt[start:].startswith("{")
            be = txt.strip().endswith("}")
@@ -145,6 +154,11 @@ def loads(txt: str, pos: int = 0, *args, **kwargs):
                 if bs != be: txt = "{" + txt + "}"
                 try: return loads(txt, DEPTH = DEPTH + 1, SKIP_YAML_PARSE = SKIP_YAML_PARSE)
                 except Exception as ie: set_inner_exceptions(e, ie)
+
+        # MAYBE YAML # Ð’ÐžÐ—ÐœÐžÐ–ÐÐž YAML #
+        if ALLOW_YAML_ANALYSE and not SKIP_YAML_PARSE and not isinstance(e, YamlValidationException) and DEPTH == 0:
+            try: return yamls(txt, DEPTH = DEPTH)
+            except Exception as ie: set_inner_exceptions(e, ie)
 
         raise e
 
@@ -474,6 +488,113 @@ def escape(st, encoding='utf-8'):
              .decode(encoding))
 
 
+################## YAML BLOCK ##################
+
+
+def yamls(txt, *args, **kwargs):
+    """
+    Parse Yaml
+    """
+
+    global COUNTER_YAML
+    COUNTER_YAML += 1
+
+    import yaml # PyYAML
+
+    DEPTH = 0 # Ð“Ð»ÑƒÐ±Ð¸Ð½Ð° Ñ€ÐµÐºÑƒÑ€ÑÐ¸Ð¸
+    NOT_WITH_JSON = False # ÐŸÑ€Ð¾Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ JSON & YAML
+    for k,v in kwargs.items():
+        if k == "DEPTH": DEPTH  = v
+        if k == "NOT_WITH_JSON": NOT_WITH_JSON  = v
+
+    try: 
+       res = yaml.safe_load(txt)
+       return res
+    except Exception as e:
+        if ALLOW_YAML_PLUS_JSON_ANALYSE and not NOT_WITH_JSON:
+            lines = txt.splitlines()
+            try: return json_and_yaml_parse(lines, DEPTH)        
+            except Exception as ie: set_inner_exceptions(e, ie)
+            try: return yaml_and_json_parse(lines, DEPTH)        
+            except Exception as ie: set_inner_exceptions(e, ie)
+        YamlValidationException.throw(e)
+
+
+def json_and_yaml_parse(lines, depth = 0):
+    """
+    Check JSON then Yaml
+    """
+
+    index = -1    
+    for i in range(len(lines) - 1, -1, -1):
+        line = lines[i].strip()
+        if "]" in line or "}" in line:
+            index = i 
+            break
+    if index > 0 and index < len(lines):
+        json_text = ""
+        for i in range(0, index + 1): json_text += lines[i] + "\n"
+        yaml_text = ""
+        for i in range(index + 1, len(lines)): yaml_text += lines[i] + "\n"
+        json_text = json_text.strip()
+        yaml_text = yaml_text.strip()
+        if len(json_text) > 1 and len(yaml_text) > 2: # [] | a:b
+            try: json_res = loads(json_text, SKIP_YAML_PARSE = True, DEPTH = depth + 1)
+            except: json_res = {}
+            try: yaml_res = yamls(yaml_text, NOT_WITH_JSON = True, DEPTH = depth + 1)
+            except: yaml_res = {}
+            if bool(json_res) or bool(yaml_res): 
+                return merge_json_and_yaml(json_res, yaml_res)
+    YamlValidationException.throw("Not a JSON + Yaml")
+
+
+def yaml_and_json_parse(lines, depth = 0):
+    """
+    Check Yaml then JSON
+    """
+
+    index = -1    
+    for i in range(0, len(lines)):        
+        line = lines[i].strip()
+        if "[" in line or "{" in line: break        
+        index = i
+    if index > 0 and index < len(lines):
+        yaml_text = ""
+        for i in range(0, index + 1): yaml_text += lines[i] + "\n"
+        json_text = ""
+        for i in range(index + 1, len(lines)): json_text += lines[i] + "\n"
+        yaml_text = yaml_text.strip()
+        json_text = json_text.strip()
+        if len(yaml_text) > 1 and len(json_text) > 2: # [] | a:b
+            try: json_res = loads(json_text, SKIP_YAML_PARSE = True, DEPTH = depth + 1)
+            except: json_res = {}
+            try: yaml_res = yamls(yaml_text, NOT_WITH_JSON = True, DEPTH = depth + 1)
+            except: yaml_res = {}
+            if bool(json_res) or bool(yaml_res): 
+                return merge_json_and_yaml(json_res, yaml_res)
+    YamlValidationException.throw("Not a JSON + Yaml")
+
+
+def merge_json_and_yaml(json_res, yaml_res):
+    """
+    Merge JSON and Yaml Objects
+    """
+
+    res = {}
+    if isinstance(json_res, dict) and isinstance(yaml_res, dict):
+        res = json_res | yaml_res
+    if isinstance(json_res, list) and isinstance(yaml_res, dict):
+        if len(json_res) == 1: res = yaml_res | json_res[0]
+        else: res = yaml_res | {"properties": json_res}
+    if isinstance(json_res, dict) and isinstance(yaml_res, list):
+        if len(yaml_res) == 1: res = json_res | yaml_res[0]
+        else: res = json_res | {"data": yaml_res}
+    if isinstance(json_res, list) and isinstance(yaml_res, list):
+        res = {"properties": json_res, "data": yaml_res}
+    if not bool(res): YamlValidationException.throw("Not a JSON + Yaml")
+    return res
+
+
 def set_inner_exceptions(outerException: Exception, innerException: Exception):
     """
     Set Inner Exceptions to curent
@@ -498,6 +619,16 @@ class JsonBodyException(ValueError):
     @staticmethod
     def throw(msg: str):
         raise JsonBodyException(msg)
+
+
+class YamlValidationException(ValueError):
+    """
+    Exception Returned by Yaml Parser
+    """
+    
+    @staticmethod
+    def throw(msg: str):
+        raise YamlValidationException(msg)
 
 
 class JsonValidationException(ValueError):
